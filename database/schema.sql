@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS students (
     phone VARCHAR(20),
     address TEXT,
     dob DATE,
-    license_type ENUM('A', 'B', 'C') DEFAULT 'B',
+    license_type ENUM('A','K','B','C','C1','D','E') DEFAULT 'B',
     status ENUM('active', 'completed', 'dropped') DEFAULT 'active',
     enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

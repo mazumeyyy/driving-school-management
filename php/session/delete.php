@@ -7,13 +7,14 @@ header('Content-Type: application/json');
 $id = intval($_POST['id'] ?? 0);
 if (!$id) { echo json_encode(['status'=>'error','message'=>'Invalid ID.']); exit; }
 
-$stmt = $conn->prepare("DELETE FROM students WHERE id = ?");
+$stmt = $conn->prepare("DELETE FROM sessions WHERE id = ?");
 $stmt->bind_param("i", $id);
 
 if ($stmt->execute()) {
-    echo json_encode(['status'=>'success','message'=>'Student deleted.']);
+    echo json_encode(['status'=>'success','message'=>'Session deleted.']);
 } else {
     echo json_encode(['status'=>'error','message'=>'Failed to delete.']);
 }
 $stmt->close(); $conn->close();
 ?>
+
