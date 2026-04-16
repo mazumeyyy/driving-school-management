@@ -59,18 +59,35 @@ if (!isset($_SESSION['user_id'])) { header('Location: /index.php'); exit; }
             </div>
             <div class="modal-body">
                 <form id="markAttendanceForm">
+
+                    <!-- Step 1: Date -->
                     <div class="mb-3">
-                        <label class="form-label">Session *</label>
-                        <select class="form-select" name="session_id" id="sessionSelect" required>
-                            <option value="">-- Select Session --</option>
+                        <label class="form-label">Step 1 — Session Date *</label>
+                        <input type="date" class="form-control" id="filterDate" onchange="filterSlots()" required>
+                    </div>
+
+                    <!-- Step 2: Slot -->
+                    <div class="mb-3">
+                        <label class="form-label">Step 2 — Slot *</label>
+                        <select class="form-select" id="filterSlot" onchange="filterStudents()" disabled>
+                            <option value="">-- Select Slot --</option>
+                            <option value="Morning (6:00 AM - 10:00 AM)">🌅 Morning (6:00 AM - 10:00 AM)</option>
+                            <option value="Afternoon (11:00 AM - 3:00 PM)">☀️ Afternoon (11:00 AM - 3:00 PM)</option>
+                            <option value="Evening (4:00 PM - 7:00 PM)">🌆 Evening (4:00 PM - 7:00 PM)</option>
                         </select>
                     </div>
+
+                    <!-- Step 3: Student (filtered) -->
                     <div class="mb-3">
-                        <label class="form-label">Student *</label>
-                        <select class="form-select" name="student_id" id="attendanceStudentSelect" required>
+                        <label class="form-label">Step 3 — Student *</label>
+                        <select class="form-select" name="student_id" id="attendanceStudentSelect" disabled required>
                             <option value="">-- Select Student --</option>
                         </select>
                     </div>
+
+                    <!-- Hidden session_id -->
+                    <input type="hidden" name="session_id" id="hiddenSessionId">
+
                     <div class="mb-3">
                         <label class="form-label">Status *</label>
                         <select class="form-select" name="status" required>
@@ -79,6 +96,7 @@ if (!isset($_SESSION['user_id'])) { header('Location: /index.php'); exit; }
                             <option value="late">Late</option>
                         </select>
                     </div>
+
                 </form>
             </div>
             <div class="modal-footer">
@@ -91,32 +109,57 @@ if (!isset($_SESSION['user_id'])) { header('Location: /index.php'); exit; }
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+let allSessions = [];
+
 document.addEventListener('DOMContentLoaded', () => {
     loadAttendance();
-    loadSessionsDropdown();
-    loadStudentsDropdown();
+    // set today's date as default
+    document.getElementById('filterDate').value = new Date().toISOString().split('T')[0];
+    fetch('/php/session/read.php')
+        .then(r => r.json())
+        .then(data => { allSessions = data; });
 });
 
-function loadSessionsDropdown() {
-    fetch('/php/session/read.php')
-    .then(r => r.json())
-    .then(data => {
-        const select = document.getElementById('sessionSelect');
-        data.forEach(s => {
-            select.innerHTML += `<option value="${s.id}">${s.student_name} — ${s.session_date} (${s.slot || 'No slot'})</option>`;
-        });
-    });
+function filterSlots() {
+    const date = document.getElementById('filterDate').value;
+    const slotSelect = document.getElementById('filterSlot');
+    slotSelect.disabled = !date;
+    slotSelect.value = '';
+    document.getElementById('attendanceStudentSelect').innerHTML = '<option value="">-- Select Student --</option>';
+    document.getElementById('attendanceStudentSelect').disabled = true;
+    document.getElementById('hiddenSessionId').value = '';
 }
 
-function loadStudentsDropdown() {
-    fetch('/php/student/read.php')
-    .then(r => r.json())
-    .then(data => {
-        const select = document.getElementById('attendanceStudentSelect');
-        data.forEach(s => {
-            select.innerHTML += `<option value="${s.id}">${s.full_name}</option>`;
-        });
+function filterStudents() {
+    const date = document.getElementById('filterDate').value;
+    const slot = document.getElementById('filterSlot').value;
+    const studentSelect = document.getElementById('attendanceStudentSelect');
+
+    if (!date || !slot) return;
+
+    // Find matching sessions for this date + slot
+    const matched = allSessions.filter(s => s.session_date === date && s.slot === slot);
+
+    studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
+
+    if (!matched.length) {
+        studentSelect.innerHTML = '<option value="">No sessions found for this date & slot</option>';
+        studentSelect.disabled = true;
+        document.getElementById('hiddenSessionId').value = '';
+        return;
+    }
+
+    matched.forEach(s => {
+        studentSelect.innerHTML += `<option value="${s.student_id}" data-session="${s.id}">${s.student_name}</option>`;
     });
+
+    studentSelect.disabled = false;
+
+    // Auto-set session_id when student is picked
+    studentSelect.onchange = function() {
+        const selected = this.options[this.selectedIndex];
+        document.getElementById('hiddenSessionId').value = selected.dataset.session || '';
+    };
 }
 
 function loadAttendance() {
@@ -153,10 +196,11 @@ function submitAttendance() {
         if (data.status === 'success') {
             bootstrap.Modal.getInstance(document.getElementById('markAttendanceModal')).hide();
             document.getElementById('markAttendanceForm').reset();
+            filterSlots();
             loadAttendance();
         }
     });
 }
 </script>
 </body>
-</html><?php
+</html>

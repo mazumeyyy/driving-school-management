@@ -11,6 +11,7 @@ if (!isset($_SESSION['user_id'])) {
     <meta charset="UTF-8">
     <title>DSMS — Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="/assets/css/style.css" rel="stylesheet">
 </head>
 <body>
@@ -26,7 +27,48 @@ if (!isset($_SESSION['user_id'])) {
         <h2>Dashboard</h2>
         <p class="text-muted">Welcome to the Driving School Management System.</p>
 
-        <div class="row mt-4">
+        <!-- Stats Row -->
+        <div class="row mt-3 mb-4 g-3" id="statsRow">
+            <div class="col-md-3">
+                <div class="card text-center p-3 border-0 shadow-sm">
+                    <div class="mb-2" style="color:var(--primary); font-size:2rem;">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <h3 class="fw-bold mb-0" id="statStudents">—</h3>
+                    <p class="text-muted mb-0">Total Students</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-3 border-0 shadow-sm">
+                    <div class="mb-2" style="color:var(--primary); font-size:2rem;">
+                        <i class="bi bi-calendar-check-fill"></i>
+                    </div>
+                    <h3 class="fw-bold mb-0" id="statSessions">—</h3>
+                    <p class="text-muted mb-0">Total Sessions</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-3 border-0 shadow-sm">
+                    <div class="mb-2" style="color:var(--primary); font-size:2rem;">
+                        <i class="bi bi-person-check-fill"></i>
+                    </div>
+                    <h3 class="fw-bold mb-0" id="statAttendance">—</h3>
+                    <p class="text-muted mb-0">Today's Attendance</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-3 border-0 shadow-sm">
+                    <div class="mb-2" style="color:var(--primary); font-size:2rem;">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </div>
+                    <h3 class="fw-bold mb-0" id="statCertificates">—</h3>
+                    <p class="text-muted mb-0">Certificates Issued</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Cards -->
+        <div class="row mt-2 g-3">
             <div class="col-md-3">
                 <div class="card text-center p-3">
                     <h4>Students</h4>
@@ -57,6 +99,46 @@ if (!isset($_SESSION['user_id'])) {
             </div>
         </div>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const today = new Date().toISOString().split('T')[0];
+
+        // Total Students
+        fetch('/php/student/read.php')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('statStudents').textContent = data.length;
+            });
+
+        // Total Sessions
+        fetch('/php/session/read.php')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('statSessions').textContent = data.length;
+            });
+
+        // Today's Attendance
+        fetch('/php/attendance/read.php')
+            .then(r => r.json())
+            .then(data => {
+                const todayCount = data.filter(a => a.session_date === today).length;
+                document.getElementById('statAttendance').textContent = todayCount;
+            });
+
+        // Certificates
+        fetch('/php/certificate/read.php')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('statCertificates').textContent = data.length;
+            })
+            .catch(() => {
+                document.getElementById('statCertificates').textContent = '0';
+            });
+    });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 

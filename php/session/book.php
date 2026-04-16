@@ -15,8 +15,8 @@ if (!$student_id || !$session_date) {
     exit;
 }
 
-$stmt = $conn->prepare("INSERT INTO sessions (student_id, session_date, start_time, end_time, status, notes) VALUES (?,?,?,?,?,?)");
-$stmt->bind_param("isssss", $student_id, $session_date, $start_time, $end_time, $status, $notes);
+$stmt = $conn->prepare("INSERT INTO sessions (student_id, session_date, slot, status, notes) VALUES (?,?,?,?,?)");
+$stmt->bind_param("issss", $student_id, $session_date, $slot, $status, $notes);
 
 if ($stmt->execute()) {
     echo json_encode(['status'=>'success','message'=>'Session booked successfully!']);
