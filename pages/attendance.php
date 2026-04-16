@@ -103,7 +103,7 @@ function loadSessionsDropdown() {
     .then(data => {
         const select = document.getElementById('sessionSelect');
         data.forEach(s => {
-            select.innerHTML += `<option value="${s.id}">${s.student_name} — ${s.session_date}</option>`;
+            select.innerHTML += `<option value="${s.id}">${s.student_name} — ${s.session_date} (${s.slot || 'No slot'})</option>`;
         });
     });
 }

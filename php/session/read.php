@@ -8,7 +8,7 @@ $result = $conn->query("
     SELECT s.*, st.full_name AS student_name
     FROM sessions s
     JOIN students st ON s.student_id = st.id
-    ORDER BY s.session_date DESC, s.start_time ASC
+    ORDER BY s.session_date DESC
 ");
 
 $sessions = [];

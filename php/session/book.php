@@ -6,8 +6,7 @@ header('Content-Type: application/json');
 
 $student_id   = intval($_POST['student_id'] ?? 0);
 $session_date = trim($_POST['session_date'] ?? '');
-$start_time   = trim($_POST['start_time'] ?? '');
-$end_time     = trim($_POST['end_time'] ?? '');
+$slot         = trim($_POST['slot'] ?? '');
 $status       = trim($_POST['status'] ?? 'scheduled');
 $notes        = trim($_POST['notes'] ?? '');
 
