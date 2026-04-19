@@ -94,7 +94,7 @@ if (!isset($_SESSION['user_id'])) {
                 <div class="card text-center p-3">
                     <h4>Certificates</h4>
                     <p class="text-muted">Generate certificates</p>
-                    <a href="/pages/certificate.php" class="btn btn-sm login-btn text-white">View</a>
+                    <a href="/pages/certificates.php" class="btn btn-sm login-btn text-white">View</a>
                 </div>
             </div>
         </div>
