@@ -1,11 +1,15 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) { echo json_encode([]); exit; }
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode([]);
+    exit;
+}
 require_once '../config/db.php';
 header('Content-Type: application/json');
 
 $result = $conn->query("
-    SELECT c.*, s.full_name AS student_name, s.license_type
+    SELECT c.id, c.student_id, c.issued_date AS issue_date, c.license_type, c.notes, c.created_at,
+           s.full_name AS student_name
     FROM certificates c
     JOIN students s ON c.student_id = s.id
     ORDER BY c.created_at DESC
@@ -22,4 +26,3 @@ while ($row = $result->fetch_assoc()) {
 }
 echo json_encode($certs);
 $conn->close();
-?>
